@@ -4,3 +4,5 @@ __pycache__/
 .env
 reports/*.json
 logs_*.log
+reports/traces.jsonl
+reports/*.json
