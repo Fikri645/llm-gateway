@@ -1,8 +1,17 @@
 """Central configuration for the LLM gateway."""
 from __future__ import annotations
 
+import logging
 import os
 from pathlib import Path
+
+# Quiet LLM Guard's chatty structlog output (it logs every scan at info/debug).
+try:
+    import structlog
+    structlog.configure(
+        wrapper_class=structlog.make_filtering_bound_logger(logging.WARNING))
+except Exception:
+    pass
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data"

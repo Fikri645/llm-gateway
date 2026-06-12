@@ -10,7 +10,7 @@ from __future__ import annotations
 import time
 from dataclasses import asdict, dataclass, field
 
-from src import guardrails, llm
+from src import guardrails, llm, tracing
 
 REFUSAL = ("I can't help with that request — it was flagged by the gateway's "
            "safety guardrails.")
@@ -32,6 +32,13 @@ class GatewayResult:
 
 
 def process(prompt: str) -> GatewayResult:
+    """Public entry: run the gateway then trace the result (fire-and-forget)."""
+    result = _process(prompt)
+    tracing.trace(prompt, result)
+    return result
+
+
+def _process(prompt: str) -> GatewayResult:
     """Input guardrails → LLM → output guardrails. Blocks short-circuit."""
     t0 = time.perf_counter()
 
