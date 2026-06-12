@@ -35,11 +35,13 @@ TOXIC_TERMS = ["stupid", "idiot", "worthless", "i hate you", "kill",
 BANNED_PHRASES = ["illegal weapons", "self-harm", "hurt myself",
                   "build a bomb", "make a weapon"]
 
-# PII patterns → redaction tag
+# PII patterns → redaction tag. Order matters: CREDIT_CARD before PHONE, else
+# the broad phone pattern eats a 16-digit card before it can be tagged.
 PII_PATTERNS = {
     "EMAIL": re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}"),
-    "PHONE": re.compile(r"(?:\+?\d[\d\-\s]{7,}\d)"),
-    "CREDIT_CARD": re.compile(r"\b(?:\d[ -]?){13,16}\b"),
+    # 16-digit card in 4 groups of 4 — specific enough not to swallow a phone
+    "CREDIT_CARD": re.compile(r"\b\d{4}[ -]?\d{4}[ -]?\d{4}[ -]?\d{4}\b"),
+    "PHONE": re.compile(r"\+?\d[\d\-\s]{6,}\d"),
 }
 
 FULL = os.environ.get("GUARDRAILS_FULL", "0") == "1"

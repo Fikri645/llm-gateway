@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install deps
+        run: pip install fastapi uvicorn pydantic llm-guard flake8 pytest
+      - name: Lint
+        run: flake8 src api evals tests --max-line-length=100
+      - name: Unit tests (keyless mock)
+        run: pytest tests/ evals/deepeval_suite.py -v
+      - name: Guardrails red-team (G1)
+        run: python -m src.redteam_score
+      - name: Eval regression gate (G2, deterministic)
+        run: python -m evals.gate
